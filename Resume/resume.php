@@ -135,6 +135,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="skillsInfo">
                 <ul>
                     <li><b>Web Development:</b> HTML, CSS, PHP, Javascript</li>
+                    <li><b>UI/UX Design:</b> Figma (Wireframing, Prototyping, Interface Design)</li>
                     <li><b>Programming:</b> Python, Java, C++, C#</li>
                     <li><b>Soft Skills:</b> Communication, Time Management, Adaptability, Teamwork & Collaboration</li>
                 </ul>
