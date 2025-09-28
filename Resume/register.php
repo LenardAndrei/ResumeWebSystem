@@ -18,13 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($password !== $confirm) $errors[] = 'Passwords do not match.';
 
     if (empty($errors)) {
-        // check if email already exists
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
         if ($stmt->fetch()) {
             $errors[] = "Email is already registered.";
         } else {
-            // insert new user
             $hashed = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password) 
                                    VALUES (:first_name, :last_name, :email, :password)");
