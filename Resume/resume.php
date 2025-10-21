@@ -4,7 +4,70 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: index.php'); 
     exit;
 }
+
+require_once 'db.php';
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch resume data from database
+try {
+    $stmt = $pdo->prepare("SELECT * FROM user_resume WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $resume = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Get user's name and email from users table
+    $stmt = $pdo->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+} catch(PDOException $e) {
+    die("Error fetching data: " . $e->getMessage());
+}
+
+// Set default values if no resume exists yet
+if (!$resume) {
+    $resume = [
+        'title' => 'Computer Science',
+        'address' => 'Your Address',
+        'phone' => 'Your Phone',
+        'description' => 'Please edit your resume to add your career objective.',
+        'age' => '20',
+        'sex' => 'Male',
+        'birthday' => '2004-10-01',
+        'birth_place' => 'Your Birth Place',
+        'civil_status' => 'Single',
+        'nationality' => 'Filipino',
+        'school' => 'Your University',
+        'course_program' => 'Bachelor of Science in Computer Science',
+        'date_started' => date('Y-m-d'),
+        'date_ended' => '',
+        'skills_web_dev' => 'HTML, CSS, PHP, Javascript',
+        'skills_ui_ux' => 'Figma (Wireframing, Prototyping, Interface Design)',
+        'skills_programming' => 'Python, Java, C++, C#',
+        'skills_soft' => 'Communication, Time Management, Adaptability, Teamwork & Collaboration',
+        'photo' => 'formalpic.jpg'
+    ];
+}
+
+// Build full name
+$name = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+if (empty($name)) {
+    $name = 'Your Name';
+}
+
+// Assign variables for display
+$title = $resume['title'];
+$email = $user['email'] ?? 'your@email.com';
+$phone = $resume['phone'];
+$address = $resume['address'];
+$age = $resume['age'];
+$sex = $resume['sex'];
+$bday = $resume['birthday'] ? date('F j, Y', strtotime($resume['birthday'])) : '';
+$birthPlace = $resume['birth_place'];
+$status = $resume['civil_status'];
+$nationality = $resume['nationality'];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,32 +99,29 @@ if (!isset($_SESSION['user_id'])) {
         <a href="logout.php">Logout</a>
     </div>
 
+     <div class="logout">
+        <a href="edit_resume.php">Edit Resume</a>
+    </div>
+
     <div class = "resume-container">
 
-        <?php
-            $name = "Lenard Andrei V. Panganiban";
-            $title = "Computer Science";
-            $email = "andreipanganiban82@gmail.com";
-            $phone = "0998-958-7442";
-            $address = "Alalum, San Pascual, Batangas";
-        ?>
         <div class="header">
             <div class="info">
                 <div class="name">
-                    <?php echo $name; ?>
+                    <?php echo htmlspecialchars($name); ?>
                 </div>
                 <div class="title">
-                    <?php echo $title; ?>
+                    <?php echo htmlspecialchars($title); ?>
                 </div>
                 <div class="contact">
-                    <div><?php echo $email; ?></div>
-                    <div><?php echo $phone; ?></div>
-                    <div><?php echo $address; ?></div>
+                    <div><?php echo htmlspecialchars($email); ?></div>
+                    <div><?php echo htmlspecialchars($phone); ?></div>
+                    <div><?php echo htmlspecialchars($address); ?></div>
                 </div>
             </div>
 
             <div class="pic">
-                <img src="formalpic.jpg" alt="picture">
+                <img src="<?php echo htmlspecialchars($resume['photo']); ?>" alt="picture">
             </div>
         </div>
 
@@ -69,22 +129,9 @@ if (!isset($_SESSION['user_id'])) {
 
         <div class="objective">
             <div>
-                <?php echo "Computer Science student with a passion for web development, 
-                seeking opportunities to apply skills in HTML, CSS, JavaScript, 
-                and PHP to create responsive and user-friendly websites. Continuously 
-                learning new technologies and improving programming abilities through 
-                hands-on projects and experimentation."; ?>
+                <?php echo nl2br(htmlspecialchars($resume['description'])); ?>
             </div>
         </div> 
-
-        <?php
-            $age = "20";
-            $sex = "Male";
-            $bday = "October 1, 2004";
-            $birthPlace = "Bauan, Batangas";
-            $status = "Single";
-            $nationality = "Filipino";
-        ?>
 
         <div class="personalData">
             <div class="personalDataTitle">
@@ -101,12 +148,12 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
 
                 <div class="infoTwo">
-                    <div><?php echo $age; ?></div>
-                    <div><?php echo $sex; ?></div>
-                    <div><?php echo $bday; ?></div>
-                    <div><?php echo $birthPlace; ?></div>
-                    <div><?php echo $status; ?></div>
-                    <div><?php echo $nationality; ?></div>
+                    <div><?php echo htmlspecialchars($age); ?></div>
+                    <div><?php echo htmlspecialchars($sex); ?></div>
+                    <div><?php echo htmlspecialchars($bday); ?></div>
+                    <div><?php echo htmlspecialchars($birthPlace); ?></div>
+                    <div><?php echo htmlspecialchars($status); ?></div>
+                    <div><?php echo htmlspecialchars($nationality); ?></div>
                 </div>
             </div>
         </div>
@@ -121,9 +168,17 @@ if (!isset($_SESSION['user_id'])) {
                     <div><?php echo "College"; ?></div>
                 </div>
                 <div class="collegeInfo">
-                    <div><?php echo "<b>Bachelor of Science in Computer Science</b>"; ?></div>
-                    <div><?php echo "Batangas State University - Alangilan Campus"; ?></div>
-                    <div><?php echo "August 2023 - Present"; ?></div>
+                    <div><?php echo "<b>" . htmlspecialchars($resume['course_program']) . "</b>"; ?></div>
+                    <div><?php echo htmlspecialchars($resume['school']); ?></div>
+                    <div>
+                        <?php 
+                        if ($resume['date_started']) {
+                            $start = date('F Y', strtotime($resume['date_started']));
+                            $end = $resume['date_ended'] ? date('F Y', strtotime($resume['date_ended'])) : 'Present';
+                            echo htmlspecialchars($start . ' - ' . $end);
+                        }
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,10 +189,21 @@ if (!isset($_SESSION['user_id'])) {
             </div>
             <div class="skillsInfo">
                 <ul>
-                    <li><b>Web Development:</b> HTML, CSS, PHP, Javascript</li>
-                    <li><b>UI/UX Design:</b> Figma (Wireframing, Prototyping, Interface Design)</li>
-                    <li><b>Programming:</b> Python, Java, C++, C#</li>
-                    <li><b>Soft Skills:</b> Communication, Time Management, Adaptability, Teamwork & Collaboration</li>
+                    <?php if (!empty($resume['skills_web_dev'])): ?>
+                        <li><b>Web Development:</b> <?php echo htmlspecialchars($resume['skills_web_dev']); ?></li>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($resume['skills_ui_ux'])): ?>
+                        <li><b>UI/UX Design:</b> <?php echo htmlspecialchars($resume['skills_ui_ux']); ?></li>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($resume['skills_programming'])): ?>
+                        <li><b>Programming:</b> <?php echo htmlspecialchars($resume['skills_programming']); ?></li>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($resume['skills_soft'])): ?>
+                        <li><b>Soft Skills:</b> <?php echo htmlspecialchars($resume['skills_soft']); ?></li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
