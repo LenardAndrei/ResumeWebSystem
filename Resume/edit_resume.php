@@ -46,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($existing) {
             // Update existing resume
             $sql = "UPDATE user_resume SET 
+                    full_name = ?,
+                    email = ?,
                     title = ?,
                     address = ?,
                     phone = ?,
@@ -69,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
+                $_POST['full_name'],
+                $_POST['email'],
                 $_POST['title'],
                 $_POST['address'],
                 $_POST['phone'],
@@ -93,15 +97,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Insert new resume
             $sql = "INSERT INTO user_resume (
-                    user_id, title, address, phone, description, age, sex, birthday,
+                    user_id, full_name, email, title, address, phone, description, age, sex, birthday,
                     birth_place, civil_status, nationality, school, course_program,
                     date_started, date_ended, skills_web_dev, skills_ui_ux,
                     skills_programming, skills_soft, photo
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 $user_id,
+                $_POST['full_name'],
+                $_POST['email'],
                 $_POST['title'],
                 $_POST['address'],
                 $_POST['phone'],
@@ -138,11 +144,6 @@ try {
     $stmt->execute([$user_id]);
     $resume = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Get user info
-    $stmt = $pdo->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
-    $stmt->execute([$user_id]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
 } catch(PDOException $e) {
     die("Error fetching data: " . $e->getMessage());
 }
@@ -150,6 +151,8 @@ try {
 // Set defaults if no resume exists
 if (!$resume) {
     $resume = [
+        'full_name' => '',
+        'email' => '',
         'title' => 'Computer Science',
         'address' => '',
         'phone' => '',
@@ -213,7 +216,8 @@ if (!$resume) {
         }
         
         .back-btn:hover {
-            background: #4b5563;
+            transform: scale(1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
         
         .form-section {
@@ -331,19 +335,12 @@ if (!$resume) {
             <div class="form-section">
                 <h2>Personal Information</h2>
                 <div class="form-group">
-                    <label> First Name</label>
-                    <input type="text" value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>" disabled>
-                    <div class="hint">Name cannot be changed here. Contact administrator.</div>
+                    <label>Full Name *</label>
+                    <input type="text" name="full_name" value="<?php echo htmlspecialchars($resume['full_name'] ?? ''); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>" disabled>
-                    <div class="hint">Name cannot be changed here. Contact administrator.</div>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" disabled>
-                    <div class="hint">Email cannot be changed here. Contact administrator.</div>
+                    <label>Email *</label>
+                    <input type="email" name="email" value="<?php echo htmlspecialchars($resume['email'] ?? ''); ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Title/Field *</label>

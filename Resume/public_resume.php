@@ -1,13 +1,24 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: index.php'); 
-    exit;
-}
-
 require_once 'db.php';
 
-$user_id = $_SESSION['user_id'];
+// Get user ID from URL parameter
+$user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+if ($user_id <= 0) {
+    echo "<!DOCTYPE html>";
+    echo "<html><head><title>Invalid ID</title>";
+    echo "<style>body{font-family:Arial;text-align:center;padding:50px;background:#f3f4f6;}";
+    echo ".error-box{background:white;padding:40px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:500px;margin:0 auto;}";
+    echo "h1{color:#dc2626;margin-bottom:20px;}";
+    echo "a{display:inline-block;margin-top:20px;padding:10px 20px;background:#4f46e5;color:white;text-decoration:none;border-radius:6px;}</style></head>";
+    echo "<body><div class='error-box'>";
+    echo "<h1>❌ Invalid Resume ID</h1>";
+    echo "<p>Please provide a valid user ID in the URL.</p>";
+    echo "<p>Example: <code>public_resume.php?id=1</code></p>";
+    echo "<a href='directory.php'>← Back to Directory</a>";
+    echo "</div></body></html>";
+    exit;
+}
 
 // Fetch resume data from database
 try {
@@ -19,40 +30,25 @@ try {
     die("Error fetching data: " . $e->getMessage());
 }
 
-// Set default values if no resume exists yet
+// Check if resume exists
 if (!$resume) {
-    $resume = [
-        'full_name' => 'Lenard Andrei V. Panganiban',
-        'email' => 'andreipanganiban82@gmail.com',
-        'title' => 'Computer Science',
-        'address' => 'Alalum, San Pascual, Batangas',
-        'phone' => '0998-958-7442',
-        'description' => 'Computer Science student with a passion for web development, seeking opportunities
-                          to apply skills in HTML, CSS, JavaScript, and PHP to create responsive and user-friendly
-                          websites. Continously learning new technologies and improving programming abilities through
-                          hands-on projects and experimentation.',
-        'age' => '20',
-        'sex' => 'Male',
-        'birthday' => '2004-10-01',
-        'birth_place' => 'Bauan, Batangas',
-        'civil_status' => 'Single',
-        'nationality' => 'Filipino',
-        'school' => 'Batangas State University - Alangilan',
-        'course_program' => 'Bachelor of Science in Computer Science',
-        'date_started' => 'August 2023',
-        'date_ended' => '',
-        'skills_web_dev' => 'HTML, CSS, PHP, Javascript',
-        'skills_ui_ux' => 'Figma (Wireframing, Prototyping, Interface Design)',
-        'skills_programming' => 'Python, Java, C++, C#',
-        'skills_soft' => 'Communication, Time Management, Adaptability, Teamwork & Collaboration',
-        'photo' => 'formalpic.jpg'
-    ];
+    echo "<!DOCTYPE html>";
+    echo "<html><head><title>Resume Not Found</title>";
+    echo "<style>body{font-family:Arial;text-align:center;padding:50px;background:#f3f4f6;}";
+    echo ".error-box{background:white;padding:40px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:500px;margin:0 auto;}";
+    echo "h1{color:#dc2626;margin-bottom:20px;}";
+    echo "a{display:inline-block;margin-top:20px;padding:10px 20px;background:#4f46e5;color:white;text-decoration:none;border-radius:6px;}</style></head>";
+    echo "<body><div class='error-box'>";
+    echo "<h1>❌ Resume Not Found</h1>";
+    echo "<p>The resume for user ID <strong>" . htmlspecialchars($user_id) . "</strong> does not exist or has not been created yet.</p>";
+    echo "<a href='directory.php'>← Back to Directory</a>";
+    echo "</div></body></html>";
+    exit;
 }
 
-// Assign variables for display
-$name = $resume['full_name'] ?? 'Your Name';
+$name = $resume['full_name'] ?? 'Name Not Available';
 $title = $resume['title'];
-$email = $resume['email'] ?? 'your@email.com';
+$email = $resume['email'] ?? '';
 $phone = $resume['phone'];
 $address = $resume['address'];
 $age = $resume['age'];
@@ -68,47 +64,51 @@ $nationality = $resume['nationality'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume</title>
+    <title><?php echo htmlspecialchars($name); ?> - Resume</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <style>
-        .resume_button {
-            display: flex;
-            flex-wrap: wrap; 
-            justify-content: right;
+        .public-header {
+            color: #333;
+            padding: 50px;
+            text-align: center;
         }
-        .button {
-            text-align: right;
-            margin: 10px 10px;
+        
+        .public-header h1 {
+            margin: 0;
+            font-size: 40px;
         }
-        .button a {
-            display: inline-block;
-            padding: 8px 14px;
-            background: #4f46e5;
-            color: #fff;
-            border-radius: 6px;
-            text-decoration: none;
+        
+        .public-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
             font-size: 14px;
         }
-        .button a:hover {
-            transform: scale(1);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                
+        .watermark {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 13px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 30px;
+        }
+        
+        @media print {
+            .public-header,
+            .share-section,
+            .watermark {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class = "resume_button">
-        <div class="button">
-            <a href="edit_resume.php">Edit Resume</a>
-        </div>
-
-        <div class="button">
-            <a href="resume_home.php">← Back to Home</a>
-        </div>
-
+    <div class="public-header">
+        <h1>Public Resume View</h1>
+        <p>This is a read-only view of the resume</p>
     </div>
 
-    <div class = "resume-container">
-
+    <div class="resume-container">
         <div class="header">
             <div class="info">
                 <div class="name">
@@ -139,16 +139,16 @@ $nationality = $resume['nationality'];
 
         <div class="personalData">
             <div class="personalDataTitle">
-            <div><?php echo "PERSONAL DATA"; ?></div>
+                <div>PERSONAL DATA</div>
             </div>
             <div class="content">
                 <div class="label">
-                    <div><?php echo "Age:"; ?></div>
-                    <div><?php echo "Sex:"; ?></div>
-                    <div><?php echo "Birthday:"; ?></div>
-                    <div><?php echo "Birth Place:"; ?></div>
-                    <div><?php echo "Civil Status:"; ?></div>
-                    <div><?php echo "Nationality:"; ?></div>
+                    <div>Age:</div>
+                    <div>Sex:</div>
+                    <div>Birthday:</div>
+                    <div>Birth Place:</div>
+                    <div>Civil Status:</div>
+                    <div>Nationality:</div>
                 </div>
 
                 <div class="infoTwo">
@@ -164,15 +164,15 @@ $nationality = $resume['nationality'];
 
         <div class="education">
             <div class="educTitle">
-                <div><?php echo "EDUCATIONAL BACKGROUND"; ?></div>
+                <div>EDUCATIONAL BACKGROUND</div>
             </div>
 
             <div class="college">
                 <div class="collegeLabel">
-                    <div><?php echo "College"; ?></div>
+                    <div>College</div>
                 </div>
                 <div class="collegeInfo">
-                    <div><?php echo "<b>" . htmlspecialchars($resume['course_program']) . "</b>"; ?></div>
+                    <div><b><?php echo htmlspecialchars($resume['course_program']); ?></b></div>
                     <div><?php echo htmlspecialchars($resume['school']); ?></div>
                     <div>
                         <?php 
@@ -189,7 +189,7 @@ $nationality = $resume['nationality'];
 
         <div class="skills">
             <div class="skillsTitle">
-                <div><?php echo "SKILLS"; ?></div>
+                <div>SKILLS</div>
             </div>
             <div class="skillsInfo">
                 <ul>
@@ -212,6 +212,12 @@ $nationality = $resume['nationality'];
             </div>
         </div>
     </div>
-    
+
+   <!-- <div class="watermark">
+        <p>This resume was generated and hosted online.</p>
+        <p>Last updated: <?php echo date('F j, Y', strtotime($resume['last_updated'])); ?></p>
+
+    </div>-->
+
 </body>
 </html>
