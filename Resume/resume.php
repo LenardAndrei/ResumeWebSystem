@@ -9,7 +9,6 @@ require_once 'db.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch resume data from database
 try {
     $stmt = $pdo->prepare("SELECT * FROM user_resume WHERE user_id = ?");
     $stmt->execute([$user_id]);
@@ -19,7 +18,6 @@ try {
     die("Error fetching data: " . $e->getMessage());
 }
 
-// Set default values if no resume exists yet
 if (!$resume) {
     $resume = [
         'full_name' => 'Lenard Andrei V. Panganiban',
@@ -31,7 +29,7 @@ if (!$resume) {
                           to apply skills in HTML, CSS, JavaScript, and PHP to create responsive and user-friendly
                           websites. Continously learning new technologies and improving programming abilities through
                           hands-on projects and experimentation.',
-        'age' => '20',
+        'age' => '21',
         'sex' => 'Male',
         'birthday' => '2004-10-01',
         'birth_place' => 'Bauan, Batangas',
@@ -49,10 +47,10 @@ if (!$resume) {
     ];
 }
 
-// Assign variables for display
-$name = $resume['full_name'] ?? 'Your Name';
+
+$name = $resume['full_name'];
 $title = $resume['title'];
-$email = $resume['email'] ?? 'your@email.com';
+$email = $resume['email'];
 $phone = $resume['phone'];
 $address = $resume['address'];
 $age = $resume['age'];

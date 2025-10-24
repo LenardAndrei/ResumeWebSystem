@@ -1,18 +1,15 @@
 <?php
-session_start(); // ✅ important: enables session use
+session_start(); 
 
 require_once 'db.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 
-// Get the logged-in user's ID
 $user_id = $_SESSION['user_id'];
 
-// Fetch user info from database
 try {
     $stmt = $pdo->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
     $stmt->execute([$user_id]);
@@ -21,7 +18,6 @@ try {
     die("Error fetching user: " . $e->getMessage());
 }
 
-// Combine full name or fallback to 'User'
 $name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'User';
 ?>
 
@@ -48,7 +44,6 @@ $name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'User';
             color: #4f46e5;          
         }
 
-        /* User Dropdown Styles */
         .user-menu {
             position: relative;
             display: inline-block;
@@ -231,7 +226,6 @@ $name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'User';
                 userMenu.classList.toggle('active');
             }
 
-            // Close dropdown when clicking outside
             document.addEventListener('click', function(event) {
                 const userMenu = document.getElementById('userMenu');
                 if (!userMenu.contains(event.target)) {
@@ -239,7 +233,6 @@ $name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'User';
                 }
             });
 
-            // Close dropdown when pressing Escape key
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
                     document.getElementById('userMenu').classList.remove('active');

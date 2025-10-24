@@ -9,15 +9,13 @@ require_once 'db.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Handle form submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Check if resume exists
         $stmt = $pdo->prepare("SELECT id FROM user_resume WHERE user_id = ?");
         $stmt->execute([$user_id]);
         $existing = $stmt->fetch();
         
-        // Handle file upload
         $photo_path = $_POST['current_photo'] ?? 'formalpic.jpg';
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $allowed = ['jpg', 'jpeg', 'png', 'gif'];
@@ -27,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (in_array($ext, $allowed)) {
                 $new_filename = 'uploads/profile_' . $user_id . '_' . time() . '.' . $ext;
                 
-                // Create uploads directory if it doesn't exist
                 if (!file_exists('uploads')) {
                     mkdir('uploads', 0777, true);
                 }
@@ -38,13 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // Convert date formats
         $birthday = !empty($_POST['birthday']) ? $_POST['birthday'] : null;
         $date_started = !empty($_POST['date_started']) ? $_POST['date_started'] : null;
         $date_ended = !empty($_POST['date_ended']) ? $_POST['date_ended'] : null;
         
         if ($existing) {
-            // Update existing resume
             $sql = "UPDATE user_resume SET 
                     full_name = ?,
                     email = ?,
@@ -95,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_id
             ]);
         } else {
-            // Insert new resume
             $sql = "INSERT INTO user_resume (
                     user_id, full_name, email, title, address, phone, description, age, sex, birthday,
                     birth_place, civil_status, nationality, school, course_program,
@@ -138,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch existing resume data
 try {
     $stmt = $pdo->prepare("SELECT * FROM user_resume WHERE user_id = ?");
     $stmt->execute([$user_id]);
@@ -148,29 +141,31 @@ try {
     die("Error fetching data: " . $e->getMessage());
 }
 
-// Set defaults if no resume exists
 if (!$resume) {
     $resume = [
-        'full_name' => '',
-        'email' => '',
+        'full_name' => 'Lenard Andrei V. Panganiban',
+        'email' => 'andreipanganiban82@gmail.com',
         'title' => 'Computer Science',
-        'address' => '',
-        'phone' => '',
-        'description' => '',
-        'age' => '',
+        'address' => 'Alalum, San Pascual, Batangas',
+        'phone' => '0998-958-7442',
+        'description' => 'Computer Science student with a passion for web development, seeking opportunities
+                          to apply skills in HTML, CSS, JavaScript, and PHP to create responsive and user-friendly
+                          websites. Continously learning new technologies and improving programming abilities through
+                          hands-on projects and experimentation.',
+        'age' => '21',
         'sex' => 'Male',
-        'birthday' => '',
-        'birth_place' => '',
+        'birthday' => '2004-10-01',
+        'birth_place' => 'Bauan, Batangas',
         'civil_status' => 'Single',
         'nationality' => 'Filipino',
-        'school' => '',
-        'course_program' => '',
-        'date_started' => '',
+        'school' => 'Batangas State University - Alangilan',
+        'course_program' => 'Bachelor of Science in Computer Science',
+        'date_started' => 'August 2023',
         'date_ended' => '',
-        'skills_web_dev' => '',
-        'skills_ui_ux' => '',
-        'skills_programming' => '',
-        'skills_soft' => '',
+        'skills_web_dev' => 'HTML, CSS, PHP, Javascript',
+        'skills_ui_ux' => 'Figma (Wireframing, Prototyping, Interface Design)',
+        'skills_programming' => 'Python, Java, C++, C#',
+        'skills_soft' => 'Communication, Time Management, Adaptability, Teamwork & Collaboration',
         'photo' => 'formalpic.jpg'
     ];
 }
@@ -331,7 +326,6 @@ if (!$resume) {
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="current_photo" value="<?php echo htmlspecialchars($resume['photo']); ?>">
             
-            <!-- Personal Information -->
             <div class="form-section">
                 <h2>Personal Information</h2>
                 <div class="form-group">
@@ -365,7 +359,6 @@ if (!$resume) {
                 </div>
             </div>
             
-            <!-- Objective -->
             <div class="form-section">
                 <h2>Objective / Career Summary</h2>
                 <div class="form-group">
@@ -374,7 +367,6 @@ if (!$resume) {
                 </div>
             </div>
             
-            <!-- Personal Data -->
             <div class="form-section">
                 <h2>Personal Data</h2>
                 <div class="form-row">
@@ -417,7 +409,6 @@ if (!$resume) {
                 </div>
             </div>
             
-            <!-- Education -->
             <div class="form-section">
                 <h2>Educational Background</h2>
                 <div class="form-group">
@@ -441,7 +432,6 @@ if (!$resume) {
                 </div>
             </div>
             
-            <!-- Skills -->
             <div class="form-section">
                 <h2>Skills</h2>
                 <div class="form-group">

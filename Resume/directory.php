@@ -1,7 +1,6 @@
 <?php
 require_once 'db.php';
 
-// Fetch all resumes from database
 try {
     $stmt = $pdo->query("SELECT user_id, full_name, title, email, photo FROM user_resume ORDER BY full_name ASC");
     $resumes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -48,7 +47,7 @@ try {
         }
         
         .directory-container {
-            max-width: 800px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         

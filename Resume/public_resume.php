@@ -1,7 +1,6 @@
 <?php
 require_once 'db.php';
 
-// Get user ID from URL parameter
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if ($user_id <= 0) {
@@ -12,7 +11,7 @@ if ($user_id <= 0) {
     echo "h1{color:#dc2626;margin-bottom:20px;}";
     echo "a{display:inline-block;margin-top:20px;padding:10px 20px;background:#4f46e5;color:white;text-decoration:none;border-radius:6px;}</style></head>";
     echo "<body><div class='error-box'>";
-    echo "<h1>❌ Invalid Resume ID</h1>";
+    echo "<h1> Invalid Resume ID</h1>";
     echo "<p>Please provide a valid user ID in the URL.</p>";
     echo "<p>Example: <code>public_resume.php?id=1</code></p>";
     echo "<a href='directory.php'>← Back to Directory</a>";
@@ -20,7 +19,6 @@ if ($user_id <= 0) {
     exit;
 }
 
-// Fetch resume data from database
 try {
     $stmt = $pdo->prepare("SELECT * FROM user_resume WHERE user_id = ?");
     $stmt->execute([$user_id]);
@@ -30,7 +28,6 @@ try {
     die("Error fetching data: " . $e->getMessage());
 }
 
-// Check if resume exists
 if (!$resume) {
     echo "<!DOCTYPE html>";
     echo "<html><head><title>Resume Not Found</title>";
@@ -39,7 +36,7 @@ if (!$resume) {
     echo "h1{color:#dc2626;margin-bottom:20px;}";
     echo "a{display:inline-block;margin-top:20px;padding:10px 20px;background:#4f46e5;color:white;text-decoration:none;border-radius:6px;}</style></head>";
     echo "<body><div class='error-box'>";
-    echo "<h1>❌ Resume Not Found</h1>";
+    echo "<h1> Resume Not Found</h1>";
     echo "<p>The resume for user ID <strong>" . htmlspecialchars($user_id) . "</strong> does not exist or has not been created yet.</p>";
     echo "<a href='directory.php'>← Back to Directory</a>";
     echo "</div></body></html>";
